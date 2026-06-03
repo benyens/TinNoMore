@@ -26,8 +26,8 @@ interface SymptomDao {
     suspend fun insert(symptom: SymptomEntry): Long
 
     @Update
-    suspend fun update(symptom: SymptomEntry)
+    suspend fun update(symptom: SymptomEntry): Int
 
     @Delete
-    suspend fun delete(symptom: SymptomEntry)
+    suspend fun delete(symptom: SymptomEntry): Int
 }

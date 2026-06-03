@@ -1,0 +1,172 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.tinnomore"
+4    android:versionCode="2"
+5    android:versionName="0.2.0" >
+6
+7    <uses-sdk
+7-->INJECTED
+8        android:minSdkVersion="26"
+8-->INJECTED
+9        android:targetSdkVersion="34" />
+9-->INJECTED
+10
+11    <!-- HU-01: Permiso de micrófono para grabación de crisis -->
+12    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+12-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:5:5-71
+12-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:5:22-68
+13    <uses-permission android:name="android.permission.INTERNET" />
+13-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:6:5-67
+13-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:6:22-64
+14    <uses-permission
+14-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:7:5-8:38
+15        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+15-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:7:22-78
+16        android:maxSdkVersion="28" />
+16-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:8:9-35
+17
+18    <permission
+18-->[androidx.core:core:1.12.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\e188fd56ede845eaad3eaac2390bc80b\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
+19        android:name="com.tinnomore.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+19-->[androidx.core:core:1.12.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\e188fd56ede845eaad3eaac2390bc80b\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
+20        android:protectionLevel="signature" />
+20-->[androidx.core:core:1.12.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\e188fd56ede845eaad3eaac2390bc80b\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
+21
+22    <uses-permission android:name="com.tinnomore.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+22-->[androidx.core:core:1.12.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\e188fd56ede845eaad3eaac2390bc80b\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
+22-->[androidx.core:core:1.12.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\e188fd56ede845eaad3eaac2390bc80b\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
+23
+24    <application
+24-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:10:5-31:19
+25        android:name="com.tinnomore.TinNoMoreApplication"
+25-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:11:9-45
+26        android:allowBackup="true"
+26-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:13:9-35
+27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+27-->[androidx.core:core:1.12.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\e188fd56ede845eaad3eaac2390bc80b\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
+28        android:debuggable="true"
+29        android:extractNativeLibs="false"
+29-->INJECTED
+30        android:icon="@mipmap/ic_launcher"
+30-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:14:9-43
+31        android:label="@string/app_name"
+31-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:15:9-41
+32        android:roundIcon="@mipmap/ic_launcher_round"
+32-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:16:9-54
+33        android:supportsRtl="true"
+33-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:17:9-35
+34        android:testOnly="true"
+35        android:theme="@style/Theme.TinNoMore"
+35-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:18:9-47
+36        android:usesCleartextTraffic="true" >
+36-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:12:9-44
+37        <activity
+37-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:21:9-29:20
+38            android:name="com.tinnomore.MainActivity"
+38-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:22:13-41
+39            android:exported="true"
+39-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:23:13-36
+40            android:theme="@style/Theme.TinNoMore" >
+40-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:24:13-51
+41            <intent-filter>
+41-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:25:13-28:29
+42                <action android:name="android.intent.action.MAIN" />
+42-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:26:17-69
+42-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:26:25-66
+43
+44                <category android:name="android.intent.category.LAUNCHER" />
+44-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:27:17-77
+44-->C:\Users\benja\Documents\FDSW\TinNoMore\app\src\main\AndroidManifest.xml:27:27-74
+45            </intent-filter>
+46        </activity>
+47
+48        <provider
+48-->[androidx.emoji2:emoji2:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\4039a89fa69be5e502d9a6b600ee4d77\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+49            android:name="androidx.startup.InitializationProvider"
+49-->[androidx.emoji2:emoji2:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\4039a89fa69be5e502d9a6b600ee4d77\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+50            android:authorities="com.tinnomore.androidx-startup"
+50-->[androidx.emoji2:emoji2:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\4039a89fa69be5e502d9a6b600ee4d77\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+51            android:exported="false" >
+51-->[androidx.emoji2:emoji2:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\4039a89fa69be5e502d9a6b600ee4d77\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+52            <meta-data
+52-->[androidx.emoji2:emoji2:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\4039a89fa69be5e502d9a6b600ee4d77\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+53                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+53-->[androidx.emoji2:emoji2:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\4039a89fa69be5e502d9a6b600ee4d77\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+54                android:value="androidx.startup" />
+54-->[androidx.emoji2:emoji2:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\4039a89fa69be5e502d9a6b600ee4d77\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+55            <meta-data
+55-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\b9e8ba5376125abc6b7c0069d05bb9c6\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
+56                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+56-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\b9e8ba5376125abc6b7c0069d05bb9c6\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
+57                android:value="androidx.startup" />
+57-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\b9e8ba5376125abc6b7c0069d05bb9c6\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
+58            <meta-data
+58-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+59                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+59-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+60                android:value="androidx.startup" />
+60-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+61        </provider>
+62
+63        <activity
+63-->[androidx.compose.ui:ui-test-manifest:1.6.1] C:\Users\benja\.gradle\caches\9.4.1\transforms\a7c99780767144ae55ef471a931039ec\transformed\ui-test-manifest-1.6.1\AndroidManifest.xml:23:9-25:39
+64            android:name="androidx.activity.ComponentActivity"
+64-->[androidx.compose.ui:ui-test-manifest:1.6.1] C:\Users\benja\.gradle\caches\9.4.1\transforms\a7c99780767144ae55ef471a931039ec\transformed\ui-test-manifest-1.6.1\AndroidManifest.xml:24:13-63
+65            android:exported="true" />
+65-->[androidx.compose.ui:ui-test-manifest:1.6.1] C:\Users\benja\.gradle\caches\9.4.1\transforms\a7c99780767144ae55ef471a931039ec\transformed\ui-test-manifest-1.6.1\AndroidManifest.xml:25:13-36
+66        <activity
+66-->[androidx.compose.ui:ui-tooling-android:1.6.1] C:\Users\benja\.gradle\caches\9.4.1\transforms\74d160f951016f414735a585810431c0\transformed\ui-tooling-release\AndroidManifest.xml:23:9-25:39
+67            android:name="androidx.compose.ui.tooling.PreviewActivity"
+67-->[androidx.compose.ui:ui-tooling-android:1.6.1] C:\Users\benja\.gradle\caches\9.4.1\transforms\74d160f951016f414735a585810431c0\transformed\ui-tooling-release\AndroidManifest.xml:24:13-71
+68            android:exported="true" />
+68-->[androidx.compose.ui:ui-tooling-android:1.6.1] C:\Users\benja\.gradle\caches\9.4.1\transforms\74d160f951016f414735a585810431c0\transformed\ui-tooling-release\AndroidManifest.xml:25:13-36
+69
+70        <service
+70-->[androidx.room:room-runtime-android:2.8.4] C:\Users\benja\.gradle\caches\9.4.1\transforms\a528f542ddd405f6d691fba91ee6392c\transformed\room-runtime\AndroidManifest.xml:24:9-28:63
+71            android:name="androidx.room.MultiInstanceInvalidationService"
+71-->[androidx.room:room-runtime-android:2.8.4] C:\Users\benja\.gradle\caches\9.4.1\transforms\a528f542ddd405f6d691fba91ee6392c\transformed\room-runtime\AndroidManifest.xml:25:13-74
+72            android:directBootAware="true"
+72-->[androidx.room:room-runtime-android:2.8.4] C:\Users\benja\.gradle\caches\9.4.1\transforms\a528f542ddd405f6d691fba91ee6392c\transformed\room-runtime\AndroidManifest.xml:26:13-43
+73            android:exported="false" />
+73-->[androidx.room:room-runtime-android:2.8.4] C:\Users\benja\.gradle\caches\9.4.1\transforms\a528f542ddd405f6d691fba91ee6392c\transformed\room-runtime\AndroidManifest.xml:27:13-37
+74
+75        <receiver
+75-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+76            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+76-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+77            android:directBootAware="false"
+77-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+78            android:enabled="true"
+78-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+79            android:exported="true"
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+80            android:permission="android.permission.DUMP" >
+80-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+81            <intent-filter>
+81-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+82                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+82-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+82-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+83            </intent-filter>
+84            <intent-filter>
+84-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+85                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+85-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+85-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+86            </intent-filter>
+87            <intent-filter>
+87-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+88                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+88-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+88-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+89            </intent-filter>
+90            <intent-filter>
+90-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+91                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+91-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+91-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\benja\.gradle\caches\9.4.1\transforms\9bf3f031f9f5c9ab84b5cc08188ea028\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+92            </intent-filter>
+93        </receiver>
+94    </application>
+95
+96</manifest>

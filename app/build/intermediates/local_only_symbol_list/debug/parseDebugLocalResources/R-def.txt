@@ -3,5 +3,8 @@ local
 drawable ic_launcher_foreground
 mipmap ic_launcher
 mipmap ic_launcher_round
+raw brownnoise_amplitude1
+raw pinknoise_amplitude1
+raw whitenoise_amplitude1
 string app_name
 style Theme.TinNoMore

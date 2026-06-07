@@ -188,6 +188,9 @@ layout notification_template_part_chronometer
 layout notification_template_part_time
 mipmap ic_launcher
 mipmap ic_launcher_round
+raw brownnoise_amplitude1
+raw pinknoise_amplitude1
+raw whitenoise_amplitude1
 string androidx_startup
 string app_name
 string call_notification_answer_action

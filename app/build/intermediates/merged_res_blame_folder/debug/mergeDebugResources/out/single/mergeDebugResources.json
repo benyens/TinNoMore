@@ -1,14 +1,26 @@
 [
     {
-        "merged": "com.tinnomore.app-debug-55:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.tinnomore.app-main-57:/drawable/ic_launcher_foreground.xml"
+        "merged": "/home/haxedi/.gradle/daemon/9.4.1/com.tinnomore.app-debug-55:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "/home/haxedi/.gradle/daemon/9.4.1/com.tinnomore.app-main-57:/drawable/ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.tinnomore.app-debug-55:/mipmap-hdpi_ic_launcher.xml.flat",
-        "source": "com.tinnomore.app-main-57:/mipmap-hdpi/ic_launcher.xml"
+        "merged": "com.tinnomore.app-debug-55:/raw_brownnoise_amplitude1.wav.flat",
+        "source": "com.tinnomore.app-main-57:/raw/brownnoise_amplitude1.wav"
     },
     {
-        "merged": "com.tinnomore.app-debug-55:/mipmap-hdpi_ic_launcher_round.xml.flat",
-        "source": "com.tinnomore.app-main-57:/mipmap-hdpi/ic_launcher_round.xml"
+        "merged": "com.tinnomore.app-debug-55:/raw_pinknoise_amplitude1.wav.flat",
+        "source": "com.tinnomore.app-main-57:/raw/pinknoise_amplitude1.wav"
+    },
+    {
+        "merged": "/home/haxedi/.gradle/daemon/9.4.1/com.tinnomore.app-debug-55:/mipmap-hdpi_ic_launcher_round.xml.flat",
+        "source": "/home/haxedi/.gradle/daemon/9.4.1/com.tinnomore.app-main-57:/mipmap-hdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.tinnomore.app-debug-55:/raw_whitenoise_amplitude1.wav.flat",
+        "source": "com.tinnomore.app-main-57:/raw/whitenoise_amplitude1.wav"
+    },
+    {
+        "merged": "/home/haxedi/.gradle/daemon/9.4.1/com.tinnomore.app-debug-55:/mipmap-hdpi_ic_launcher.xml.flat",
+        "source": "/home/haxedi/.gradle/daemon/9.4.1/com.tinnomore.app-main-57:/mipmap-hdpi/ic_launcher.xml"
     }
 ]

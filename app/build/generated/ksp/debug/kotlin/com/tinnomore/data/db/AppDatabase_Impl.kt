@@ -52,15 +52,15 @@ public class AppDatabase_Impl : AppDatabase() {
   }
 
   protected override fun createOpenDelegate(): RoomOpenDelegate {
-    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(1, "10f7bd07bae6e0e6b59a0a104a497966", "e43738613c94d7fe75f29763fe883f34") {
+    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(1, "2ee61f028141f11279a6a7254b6ae760", "8d7202ca3636cd1e11480ebb62170bca") {
       public override fun createAllTables(connection: SQLiteConnection) {
         connection.execSQL("CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `rut` TEXT NOT NULL, `email` TEXT NOT NULL, `password` TEXT NOT NULL, `role` TEXT NOT NULL)")
         connection.execSQL("CREATE TABLE IF NOT EXISTS `symptoms` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `intensity` INTEGER NOT NULL, `durationMinutes` INTEGER, `sleepImpact` INTEGER, `concentrationImpact` INTEGER)")
-        connection.execSQL("CREATE TABLE IF NOT EXISTS `audiometry_profiles` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `leftChannelData` TEXT NOT NULL, `rightChannelData` TEXT NOT NULL, `predictedFc` INTEGER NOT NULL)")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `audiometry_profiles` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `affectedEar` TEXT NOT NULL, `channelData` TEXT NOT NULL, `leftChannelData` TEXT NOT NULL, `rightChannelData` TEXT NOT NULL, `mlPredictedFc` INTEGER, `predictedFc` INTEGER NOT NULL)")
         connection.execSQL("CREATE TABLE IF NOT EXISTS `crisis_records` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `audioFilePath` TEXT, `maxDecibels` REAL NOT NULL, `therapyModified` INTEGER NOT NULL, `modifiedIntensity` REAL)")
         connection.execSQL("CREATE TABLE IF NOT EXISTS `therapy_sessions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `notchFrequency` INTEGER NOT NULL, `intensityDb` REAL NOT NULL, `durationSeconds` INTEGER NOT NULL)")
         connection.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
-        connection.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '10f7bd07bae6e0e6b59a0a104a497966')")
+        connection.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2ee61f028141f11279a6a7254b6ae760')")
       }
 
       public override fun dropAllTables(connection: SQLiteConnection) {
@@ -131,8 +131,11 @@ public class AppDatabase_Impl : AppDatabase() {
         _columnsAudiometryProfiles.put("id", TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsAudiometryProfiles.put("patientId", TableInfo.Column("patientId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsAudiometryProfiles.put("timestamp", TableInfo.Column("timestamp", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
+        _columnsAudiometryProfiles.put("affectedEar", TableInfo.Column("affectedEar", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
+        _columnsAudiometryProfiles.put("channelData", TableInfo.Column("channelData", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsAudiometryProfiles.put("leftChannelData", TableInfo.Column("leftChannelData", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsAudiometryProfiles.put("rightChannelData", TableInfo.Column("rightChannelData", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
+        _columnsAudiometryProfiles.put("mlPredictedFc", TableInfo.Column("mlPredictedFc", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsAudiometryProfiles.put("predictedFc", TableInfo.Column("predictedFc", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
         val _foreignKeysAudiometryProfiles: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
         val _indicesAudiometryProfiles: MutableSet<TableInfo.Index> = mutableSetOf()

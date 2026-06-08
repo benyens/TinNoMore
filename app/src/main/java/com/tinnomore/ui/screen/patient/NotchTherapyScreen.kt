@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -38,21 +40,25 @@ import kotlin.math.sqrt
 private val Teal700  = Color(0xFF00695C)
 private val Teal50   = Color(0xFFE0F2F1)
 private val Teal100  = Color(0xFFB2DFDB)
+private val Amber500 = Color(0xFFFFC107)
 private val Amber600 = Color(0xFFFFB300)
+private val AmberBg  = Color(0xFFFFF8E1)
 private val Red50    = Color(0xFFFFEBEE)
 private val Red400   = Color(0xFFEF5350)
 
-// Colores por tipo de ruido
-private val noiseColors = mapOf(
-    NoiseType.PINK  to Color(0xFFF48FB1),   // rosa pastel
-    NoiseType.WHITE to Color(0xFFB0BEC5),   // gris claro
-    NoiseType.BROWN to Color(0xFFA1887F)    // marrón suave
-)
-private val noiseColorsDark = mapOf(
+// Colores por tipo de ruido (borde/texto cuando está activo)
+private val noiseAccent = mapOf(
     NoiseType.PINK  to Color(0xFFAD1457),
     NoiseType.WHITE to Color(0xFF37474F),
     NoiseType.BROWN to Color(0xFF4E342E)
 )
+private val noiseBg = mapOf(
+    NoiseType.PINK  to Color(0xFFFCE4EC),
+    NoiseType.WHITE to Color(0xFFECEFF1),
+    NoiseType.BROWN to Color(0xFFEFEBE9)
+)
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun NotchTherapyScreen(
@@ -69,6 +75,8 @@ fun NotchTherapyScreen(
     val genState     by notchVm.genState.collectAsState()
 
     LaunchedEffect(patientId) { audiometryVm.loadLatestProfile(patientId) }
+
+    // Auto-selecciona la fc del ML apenas llega, sin sobreescribir si el usuario ya eligió otra
     LaunchedEffect(predictedFc) {
         predictedFc?.let { fc ->
             if (notchVm.availableFrequencies.contains(fc)) notchVm.setFrequency(fc)
@@ -95,7 +103,7 @@ fun NotchTherapyScreen(
             modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
         )
 
-        // ── 1. Tipo de ruido ──────────────────────────────────────────────────
+        // ── 1. Tipo de ruido + acordeón ───────────────────────────────────────
         NoiseSelector(
             selected  = noiseType,
             isPlaying = isPlaying,
@@ -126,32 +134,36 @@ fun NotchTherapyScreen(
 
         // ── Estado generación ─────────────────────────────────────────────────
         AnimatedVisibility(genState is NotchGenState.Generating) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Teal50)
-                    .padding(14.dp)
-            ) {
-                CircularProgressIndicator(color = Teal700, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                Spacer(Modifier.width(10.dp))
-                Text("Procesando audio con notch…", fontSize = 13.sp, color = Teal700)
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Teal50)
+                        .padding(14.dp)
+                ) {
+                    CircularProgressIndicator(color = Teal700, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    Spacer(Modifier.width(10.dp))
+                    Text("Procesando audio con notch…", fontSize = 13.sp, color = Teal700)
+                }
+                Spacer(Modifier.height(8.dp))
             }
-            Spacer(Modifier.height(8.dp))
         }
         AnimatedVisibility(genState is NotchGenState.Error) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Red50)
-                    .padding(14.dp)
-            ) {
-                Text("⚠ ${(genState as? NotchGenState.Error)?.msg}", fontSize = 13.sp, color = Red400)
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Red50)
+                        .padding(14.dp)
+                ) {
+                    Text("⚠ ${(genState as? NotchGenState.Error)?.msg}", fontSize = 13.sp, color = Red400)
+                }
+                Spacer(Modifier.height(8.dp))
             }
-            Spacer(Modifier.height(8.dp))
         }
 
         // ── 5. Play / Pause ───────────────────────────────────────────────────
@@ -173,17 +185,12 @@ fun NotchTherapyScreen(
             }
         }
 
-        Spacer(Modifier.height(24.dp))
-
-        // ── 6. Info ───────────────────────────────────────────────────────────
-        InfoSection()
-
         Spacer(Modifier.height(32.dp))
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  NoiseSelector
+//  NoiseSelector — chips fijos + acordeón "¿En qué se diferencian?"
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
@@ -192,12 +199,16 @@ private fun NoiseSelector(
     isPlaying: Boolean,
     onSelect: (NoiseType) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+
     Card(
         modifier  = Modifier.fillMaxWidth(),
         colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+
+            // Título + badge "Detener para cambiar"
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -217,18 +228,67 @@ private fun NoiseSelector(
 
             Spacer(Modifier.height(12.dp))
 
+            // Chips de selección — tamaño fijo, solo el borde/fondo cambia
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 NoiseType.entries.forEach { type ->
-                    NoiseCard(
-                        type      = type,
+                    NoiseChip(
+                        type       = type,
                         isSelected = type == selected,
-                        enabled   = !isPlaying,
-                        modifier  = Modifier.weight(1f),
-                        onSelect  = { onSelect(type) }
+                        enabled    = !isPlaying,
+                        modifier   = Modifier.weight(1f),
+                        onSelect   = { onSelect(type) }
                     )
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            // Acordeón "¿En qué se diferencian?"
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { expanded = !expanded }
+                    .padding(vertical = 6.dp, horizontal = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    "¿En qué se diferencian?",
+                    fontSize = 13.sp,
+                    color    = Teal700,
+                    fontWeight = FontWeight.Medium
+                )
+                Icon(
+                    if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = Teal700,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            AnimatedVisibility(
+                visible = expanded,
+                enter   = fadeIn() + expandVertically(),
+                exit    = fadeOut() + shrinkVertically()
+            ) {
+                Column(modifier = Modifier.padding(top = 8.dp)) {
+                    NoiseInfoRow("🌸", "Rosa", "Espectro equilibrado — el más recomendado para terapia de tinnitus.")
+                    Spacer(Modifier.height(6.dp))
+                    NoiseInfoRow("🤍", "Blanco", "Energía uniforme en todas las frecuencias — más agudo e intenso.")
+                    Spacer(Modifier.height(6.dp))
+                    NoiseInfoRow("🟫", "Marrón", "Énfasis en graves — profundo y suave, parecido al sonido del viento.")
+                    Spacer(Modifier.height(10.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(10.dp))
+                    NoiseInfoRow("🔇", null, "El notch suprime tu frecuencia de tinnitus ±1 octava del ruido elegido.")
+                    Spacer(Modifier.height(6.dp))
+                    NoiseInfoRow("🔁", null, "El audio se reproduce en loop. El volumen es ajustable en tiempo real.")
+                    Spacer(Modifier.height(6.dp))
+                    NoiseInfoRow("⏱️", null, "Se recomiendan sesiones diarias de al menos 30 minutos.")
                 }
             }
         }
@@ -236,48 +296,56 @@ private fun NoiseSelector(
 }
 
 @Composable
-private fun NoiseCard(
+private fun NoiseChip(
     type: NoiseType,
     isSelected: Boolean,
     enabled: Boolean,
     modifier: Modifier,
     onSelect: () -> Unit
 ) {
-    val bgColor     = if (isSelected) (noiseColors[type] ?: Teal100) else MaterialTheme.colorScheme.surfaceVariant
-    val borderColor = if (isSelected) (noiseColorsDark[type] ?: Teal700) else Color.Transparent
-    val textColor   = if (isSelected) (noiseColorsDark[type] ?: Teal700) else Color.Gray
-    val alpha       = if (enabled) 1f else 0.5f
+    val accent = noiseAccent[type] ?: Teal700
+    val bg     = if (isSelected) (noiseBg[type] ?: Teal50) else MaterialTheme.colorScheme.surfaceVariant
+    val border = if (isSelected) accent else Color.Transparent
 
     Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .border(if (isSelected) 2.dp else 0.dp, borderColor, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .border(2.dp, border, RoundedCornerShape(10.dp))
             .clickable(enabled = enabled) { onSelect() },
-        color = bgColor,
-        shape = RoundedCornerShape(12.dp)
+        color = bg,
+        shape = RoundedCornerShape(10.dp)
     ) {
         Column(
-            modifier            = Modifier.padding(vertical = 14.dp, horizontal = 8.dp),
+            modifier            = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(type.emoji, fontSize = 24.sp)
-            Spacer(Modifier.height(4.dp))
+            Text(type.emoji, fontSize = 20.sp)
+            Spacer(Modifier.height(3.dp))
             Text(
                 type.label,
-                fontSize   = 13.sp,
+                fontSize   = 12.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                color      = textColor
+                color      = if (isSelected) accent else Color.Gray
             )
-            if (isSelected) {
-                Spacer(Modifier.height(2.dp))
-                Text("✓ Activo", fontSize = 10.sp, color = textColor)
-            }
+        }
+    }
+}
+
+@Composable
+private fun NoiseInfoRow(emoji: String, bold: String?, text: String) {
+    Row(verticalAlignment = Alignment.Top) {
+        Text(emoji, fontSize = 15.sp, modifier = Modifier.width(26.dp))
+        if (bold != null) {
+            Text(bold, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.DarkGray)
+            Text(" — $text", fontSize = 13.sp, color = Color.Gray, modifier = Modifier.weight(1f))
+        } else {
+            Text(text, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.weight(1f))
         }
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  FrequencySelector
+//  FrequencySelector — predictedFc preseleccionado y resaltado en ámbar
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
@@ -293,29 +361,44 @@ private fun FrequencySelector(
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text("Frecuencia a filtrar", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Teal700)
                 if (predictedFc != null) {
-                    Spacer(Modifier.width(8.dp))
-                    Surface(color = Color(0xFFFFF8E1), shape = RoundedCornerShape(4.dp)) {
+                    Surface(color = AmberBg, shape = RoundedCornerShape(4.dp)) {
                         Text(
-                            "Sugerida: ${FrequencyPredictor.freqLabel(predictedFc)}",
-                            fontSize = 11.sp, color = Amber600,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            "⭐ ML: ${FrequencyPredictor.freqLabel(predictedFc)}",
+                            fontSize = 11.sp, color = Amber600, fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
                         )
                     }
                 }
             }
 
+            // Frecuencia grande — ámbar si es la predicha por ML
+            val isMLSelected = selected == predictedFc
             Text(
                 FrequencyPredictor.freqLabel(selected),
                 fontSize   = 42.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color      = Teal700,
+                color      = if (isMLSelected) Amber600 else Teal700,
                 modifier   = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(vertical = 8.dp)
             )
+            if (isMLSelected && predictedFc != null) {
+                Text(
+                    "Frecuencia recomendada por tu audiometría",
+                    fontSize   = 11.sp,
+                    color      = Amber500,
+                    textAlign  = TextAlign.Center,
+                    modifier   = Modifier.fillMaxWidth().padding(bottom = 4.dp)
+                )
+            }
 
             Row(
                 modifier = Modifier
@@ -326,25 +409,44 @@ private fun FrequencySelector(
                 frequencies.forEach { freq ->
                     val isSelected  = freq == selected
                     val isPredicted = freq == predictedFc
+
+                    // Chip ámbar si es predicción ML, teal si está seleccionado, base si ninguno
+                    val chipBg = when {
+                        isSelected && isPredicted -> Amber600
+                        isSelected               -> Teal700
+                        isPredicted              -> AmberBg
+                        else                     -> Teal50
+                    }
+                    val chipText = when {
+                        isSelected && isPredicted -> Color.White
+                        isSelected               -> Color.White
+                        isPredicted              -> Amber600
+                        else                     -> Teal700
+                    }
+                    val chipBorder = if (isPredicted && !isSelected) Amber600 else Color.Transparent
+
                     Surface(
                         modifier = Modifier
                             .clip(RoundedCornerShape(20.dp))
-                            .clickable { onSelect(freq) }
-                            .then(
-                                if (isPredicted && !isSelected)
-                                    Modifier.border(1.5.dp, Amber600, RoundedCornerShape(20.dp))
-                                else Modifier
-                            ),
-                        color = if (isSelected) Teal700 else Teal50,
+                            .border(if (isPredicted && !isSelected) 1.5.dp else 0.dp, chipBorder, RoundedCornerShape(20.dp))
+                            .clickable { onSelect(freq) },
+                        color = chipBg,
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Text(
-                            FrequencyPredictor.freqLabel(freq),
-                            fontSize   = 12.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color      = if (isSelected) Color.White else Teal700,
-                            modifier   = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
+                        ) {
+                            Text(
+                                FrequencyPredictor.freqLabel(freq),
+                                fontSize   = 12.sp,
+                                fontWeight = if (isSelected || isPredicted) FontWeight.Bold else FontWeight.Normal,
+                                color      = chipText
+                            )
+                            if (isPredicted) {
+                                Text("⭐", fontSize = 8.sp)
+                            }
+                        }
                     }
                 }
             }
@@ -436,11 +538,8 @@ private fun VolumeCard(volumeDb: Float, onVolumeChange: (Float) -> Unit) {
                 onValueChange = onVolumeChange,
                 valueRange    = -40f..0f,
                 steps         = 39,
-                colors        = SliderDefaults.colors(
-                    thumbColor       = Teal700,
-                    activeTrackColor = Teal700
-                ),
-                modifier = Modifier.fillMaxWidth()
+                colors        = SliderDefaults.colors(thumbColor = Teal700, activeTrackColor = Teal700),
+                modifier      = Modifier.fillMaxWidth()
             )
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Silencio (−40 dB)", fontSize = 11.sp, color = Color.Gray)
@@ -523,44 +622,5 @@ private fun PlayingBadge(fcHz: Int, noiseType: NoiseType, volumeDb: Float) {
             color      = Color(0xFF2E7D32),
             fontWeight = FontWeight.Medium
         )
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  InfoSection
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun InfoSection() {
-    Card(
-        modifier  = Modifier.fillMaxWidth(),
-        colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        elevation = CardDefaults.cardElevation(0.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("¿Cómo funciona?", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            Spacer(Modifier.height(10.dp))
-            InfoRow("🌸", "Rosa: espectro equilibrado, el más recomendado para terapia de tinnitus.")
-            Spacer(Modifier.height(6.dp))
-            InfoRow("🤍", "Blanco: energía uniforme en todas las frecuencias — más agudo e intenso.")
-            Spacer(Modifier.height(6.dp))
-            InfoRow("🟫", "Marrón: más graves, grave y profundo, parecido al sonido del viento.")
-            Spacer(Modifier.height(10.dp))
-            Divider()
-            Spacer(Modifier.height(10.dp))
-            InfoRow("🔇", "El notch suprime la frecuencia de tu tinnitus ±1 octava del ruido elegido.")
-            Spacer(Modifier.height(6.dp))
-            InfoRow("🔁", "El audio se reproduce en loop continuo. El volumen es ajustable en tiempo real.")
-            Spacer(Modifier.height(6.dp))
-            InfoRow("⏱️", "Se recomiendan sesiones diarias de al menos 30 minutos.")
-        }
-    }
-}
-
-@Composable
-private fun InfoRow(emoji: String, text: String) {
-    Row(verticalAlignment = Alignment.Top) {
-        Text(emoji, fontSize = 16.sp, modifier = Modifier.width(28.dp))
-        Text(text, fontSize = 13.sp, color = Color.DarkGray, modifier = Modifier.weight(1f))
     }
 }

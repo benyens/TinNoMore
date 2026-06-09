@@ -24,10 +24,10 @@ object NotchProcessor {
     const val RAW_WHITE = "whitenoise_amplitude1"
     const val RAW_BROWN = "brownnoise_amplitude1"
 
-    enum class NoiseType(val rawName: String, val label: String, val emoji: String) {
-        PINK ("pinknoise_amplitude1",  "Rosa",   "🌸"),
-        WHITE("whitenoise_amplitude1", "Blanco", "🤍"),
-        BROWN("brownnoise_amplitude1", "Marrón", "🟫")
+    enum class NoiseType(val rawName: String, val label: String) {
+        PINK ("pinknoise_amplitude1",  "Rosa"),
+        WHITE("whitenoise_amplitude1", "Blanco"),
+        BROWN("brownnoise_amplitude1", "Marrón")
     }
 
     // ─── Entrada principal ────────────────────────────────────────────────────

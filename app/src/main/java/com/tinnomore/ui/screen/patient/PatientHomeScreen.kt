@@ -47,7 +47,7 @@ fun PatientHomeScreen(
         ) {
             // Saludo
             Text(
-                text       = "Hola, ${user?.name?.split(" ")?.firstOrNull() ?: "Paciente"} 👋",
+                text       = "Hola, ${user?.name?.split(" ")?.firstOrNull() ?: "Paciente"}",
                 fontSize   = 24.sp,
                 fontWeight = FontWeight.Bold
             )

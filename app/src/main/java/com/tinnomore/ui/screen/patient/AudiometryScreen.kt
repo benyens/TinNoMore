@@ -84,7 +84,7 @@ fun AudiometryScreen(
         }
 
         // ── Pantalla de audiometría (un solo oído) ────────────────────────────
-        val earLabel = if (affectedEar == "LEFT") "Izquierdo 🔵" else "Derecho 🔴"
+        val earLabel = if (affectedEar == "LEFT") "Izquierdo" else "Derecho"
         val earColor = if (affectedEar == "LEFT") Color(0xFF1565C0) else Color(0xFFD32F2F)
 
         Column(
@@ -280,7 +280,6 @@ private fun EarSelectionScreen(modifier: Modifier = Modifier, onSelect: (String)
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             EarButton(
-                emoji   = "🔵",
                 label   = "Oído\nIzquierdo",
                 color   = Color(0xFF1565C0),
                 bgColor = Color(0xFFE3F2FD),
@@ -288,7 +287,6 @@ private fun EarSelectionScreen(modifier: Modifier = Modifier, onSelect: (String)
                 onClick = { onSelect("LEFT") }
             )
             EarButton(
-                emoji   = "🔴",
                 label   = "Oído\nDerecho",
                 color   = Color(0xFFD32F2F),
                 bgColor = Color(0xFFFFEBEE),
@@ -308,7 +306,7 @@ private fun EarSelectionScreen(modifier: Modifier = Modifier, onSelect: (String)
 
 @Composable
 private fun EarButton(
-    emoji: String, label: String,
+    label: String,
     color: Color, bgColor: Color,
     modifier: Modifier, onClick: () -> Unit
 ) {
@@ -319,8 +317,6 @@ private fun EarButton(
         colors   = ButtonDefaults.buttonColors(containerColor = bgColor)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(emoji, fontSize = 32.sp)
-            Spacer(Modifier.height(6.dp))
             Text(label, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = color, textAlign = TextAlign.Center)
         }
     }
@@ -395,7 +391,7 @@ fun ServerResultCard(result: TinnitusApiResult) {
     val hasTinnitus = result.tinnitus
     val headerColor = if (hasTinnitus) Color(0xFFD32F2F) else Color(0xFF2E7D32)
     val bgColor     = if (hasTinnitus) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
-    val headerText  = if (hasTinnitus) "⚠️ Patrón de tinnitus detectado (ML)" else "✅ Sin patrón de tinnitus (ML)"
+    val headerText  = if (hasTinnitus) "Patron de tinnitus detectado (ML)" else "Sin patron de tinnitus (ML)"
 
     Card(colors = CardDefaults.cardColors(containerColor = bgColor), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
@@ -469,7 +465,7 @@ fun ServerResultCard(result: TinnitusApiResult) {
 
             Spacer(Modifier.height(10.dp))
             Text(
-                "⚕️ Análisis orientativo. No reemplaza evaluación audiológica profesional.",
+                "Analisis orientativo. No reemplaza evaluacion audiologica profesional.",
                 fontSize = 10.sp, color = Color.Gray,
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
             )

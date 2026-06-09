@@ -69,7 +69,7 @@ fun CrisisScreen(
                 CrisisState.IDLE -> Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("🎙️", fontSize = 72.sp)
+                    
                     Spacer(Modifier.height(20.dp))
                     Text(
                         "¿Estás sufriendo una crisis?",
@@ -104,7 +104,7 @@ fun CrisisScreen(
                 CrisisState.NO_PERMISSION -> Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("⚠️", fontSize = 56.sp)
+                    
                     Spacer(Modifier.height(16.dp))
                     Text(
                         "Sin acceso al micrófono",
@@ -130,7 +130,7 @@ fun CrisisScreen(
                 CrisisState.RECORDING -> Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("🎙️", fontSize = 72.sp)
+                    
                     Spacer(Modifier.height(20.dp))
                     Text("Grabando ambiente...", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(6.dp))
@@ -162,7 +162,7 @@ fun CrisisScreen(
                 // ── AMBIENTE SEGURO (HU-02-3) ─────────────────────────────
                 CrisisState.SAFE -> result?.let { r ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("✅", fontSize = 64.sp)
+                        
                         Spacer(Modifier.height(12.dp))
                         Text(
                             "Ambiente seguro",
@@ -183,9 +183,9 @@ fun CrisisScreen(
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text("Terapias disponibles", fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(8.dp))
-                                TherapyRow("🎵", "Notch Therapy — Estándar")
-                                TherapyRow("🌊", "Ruido blanco")
-                                TherapyRow("🌿", "Sonidos de naturaleza")
+                                TherapyRow("", "Notch Therapy — Estándar")
+                                TherapyRow("", "Ruido blanco")
+                                TherapyRow("", "Sonidos de naturaleza")
                             }
                         }
                         Spacer(Modifier.height(20.dp))
@@ -196,7 +196,7 @@ fun CrisisScreen(
                 // ── AMBIENTE PELIGROSO (HU-02-2) ──────────────────────────
                 CrisisState.DANGEROUS -> result?.let { r ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("🔴", fontSize = 64.sp)
+                        
                         Spacer(Modifier.height(12.dp))
                         Text(
                             "¡Ruido peligroso!",
@@ -227,7 +227,7 @@ fun CrisisScreen(
                                 Column(modifier = Modifier.padding(14.dp)) {
                                     Text("Terapia ajustada automáticamente", fontWeight = FontWeight.Bold)
                                     Spacer(Modifier.height(6.dp))
-                                    TherapyRow("🎵", "Notch Therapy — Intensidad: ${(intensity * 100).toInt()}%")
+                                    TherapyRow("", "Notch Therapy — Intensidad: ${(intensity * 100).toInt()}%")
                                     Text(
                                         "La intensidad fue calculada en base a los ${r.decibels.toInt()} dB detectados.",
                                         fontSize = 12.sp,

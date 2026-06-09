@@ -276,19 +276,17 @@ private fun NoiseSelector(
                 exit    = fadeOut() + shrinkVertically()
             ) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
-                    NoiseInfoRow("🌸", "Rosa", "Espectro equilibrado — el más recomendado para terapia de tinnitus.")
+                    NoiseInfoRow("","Blanco", "Ruido generado por un rango continuo de frequencias distribuidas de manera uniforme a lo largo del espectro auditivo. Es el más agudo a pesar de que sus frecuencias sean uniformes, esto se debe a como nuestro oído percibe los sonidos.")
                     Spacer(Modifier.height(6.dp))
-                    NoiseInfoRow("🤍", "Blanco", "Energía uniforme en todas las frecuencias — más agudo e intenso.")
+                    NoiseInfoRow("", "Rosa", "Variación del ruido blanco donde las frecuencias altas se atenuan y las bajas se amplifican. Es mas suave que el ruido blanco, el balance entre agudo y grave.")
                     Spacer(Modifier.height(6.dp))
-                    NoiseInfoRow("🟫", "Marrón", "Énfasis en graves — profundo y suave, parecido al sonido del viento.")
+                    NoiseInfoRow("", "Marrón", "Variación del ruido blanco con un enfasis aun mayor en las frecuencias graves, produciendo un sonido profundo y suave.")
                     Spacer(Modifier.height(10.dp))
                     HorizontalDivider()
                     Spacer(Modifier.height(10.dp))
-                    NoiseInfoRow("🔇", null, "El notch suprime tu frecuencia de tinnitus ±1 octava del ruido elegido.")
+                    NoiseInfoRow("", "¿Qué es la Notch Therapy?", "La Notch Therapy, o Terapia de muesca, es un tipo de terapia para tratar los acufenos. Conociendo la frecuencia central de la tinnitus, la terapia notch suprime esa frecuencia de tinnitus, haciendo que el cerebro lentamente interprete el ruido de tinnitus como ruido de fondo y su percepción disminuya.")
                     Spacer(Modifier.height(6.dp))
-                    NoiseInfoRow("🔁", null, "El audio se reproduce en loop. El volumen es ajustable en tiempo real.")
-                    Spacer(Modifier.height(6.dp))
-                    NoiseInfoRow("⏱️", null, "Se recomiendan sesiones diarias de al menos 30 minutos.")
+                    NoiseInfoRow("", "Recomendaciones", "Te aconsejamos realizar tu terapia en un ambiente silencioso y tranquilo, donde puedas descansar sin interrupciones por la duración de esta. Recomendamos sesiones de 30 minutos todos los días.")
                 }
             }
         }
@@ -319,8 +317,6 @@ private fun NoiseChip(
             modifier            = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(type.emoji, fontSize = 20.sp)
-            Spacer(Modifier.height(3.dp))
             Text(
                 type.label,
                 fontSize   = 12.sp,
@@ -371,7 +367,7 @@ private fun FrequencySelector(
                 if (predictedFc != null) {
                     Surface(color = AmberBg, shape = RoundedCornerShape(4.dp)) {
                         Text(
-                            "⭐ ML: ${FrequencyPredictor.freqLabel(predictedFc)}",
+                            "ML: ${FrequencyPredictor.freqLabel(predictedFc)}",
                             fontSize = 11.sp, color = Amber600, fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
                         )
@@ -444,7 +440,7 @@ private fun FrequencySelector(
                                 color      = chipText
                             )
                             if (isPredicted) {
-                                Text("⭐", fontSize = 8.sp)
+                                Text("Frecuencia predicha", fontSize = 8.sp)
                             }
                         }
                     }
@@ -617,7 +613,7 @@ private fun PlayingBadge(fcHz: Int, noiseType: NoiseType, volumeDb: Float) {
         )
         Spacer(Modifier.width(8.dp))
         Text(
-            "${noiseType.emoji} Ruido ${noiseType.label} • Notch en ${FrequencyPredictor.freqLabel(fcHz)} • ${volumeDb.roundToInt()} dB",
+            "Ruido ${noiseType.label} • Notch en ${FrequencyPredictor.freqLabel(fcHz)} • ${volumeDb.roundToInt()} dB",
             fontSize   = 13.sp,
             color      = Color(0xFF2E7D32),
             fontWeight = FontWeight.Medium

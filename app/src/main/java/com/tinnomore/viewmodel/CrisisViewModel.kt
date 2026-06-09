@@ -159,7 +159,7 @@ class CrisisViewModel(application: Application) : AndroidViewModel(application) 
             // La intensidad extra escala linealmente entre 0.1 y 1.0
             // según cuánto supere el umbral (máximo razonable +35 dB)
             therapyIntensity = ((decibels - SAFE_DB_THRESHOLD) / 35f).coerceIn(0.1f, 1.0f)
-            message = "⚠️ El ruido ambiental detectado (${decibels.toInt()} dB) " +
+            message = "El ruido ambiental detectado (${decibels.toInt()} dB) " +
                     "podría provocar daño permanente a tus oídos. " +
                     "La intensidad de la Notch Therapy ha sido ajustada automáticamente."
             _state.value = CrisisState.DANGEROUS

@@ -33,27 +33,31 @@ fun AppNavigation() {
     val currentUser      by authViewModel.currentUser.collectAsState()
     val isSessionLoading by authViewModel.isSessionLoading.collectAsState()
     // ── Mientras se verifica la sesión guardada, mostrar spinner ──────────
-    if (currentUser?.role == UserRole.PATIENT || currentUser?.role == UserRole.SPECIALIST || currentUser?.role == UserRole.ADMIN) {
+    if (isSessionLoading && currentUser == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
+        return
     }
 
-    // ── Auto-navegar si ya hay sesión restaurada (sin tocar el NavHost) ───
-    // Se ejecuta una sola vez al pasar isSessionLoading → false con usuario.
+    // ── Reaccionar a cambios de sesión (login, auto-login, logout) ────────
     LaunchedEffect(currentUser) {
-        currentUser?.let { user ->
-            val dest = when (user.role) {
+        if (currentUser != null) {
+            val dest = when (currentUser!!.role) {
                 UserRole.PATIENT    -> Screen.PatientMain.route
                 UserRole.SPECIALIST -> Screen.SpecialistHome.route
                 UserRole.ADMIN      -> Screen.Admin.route
             }
-            // Solo navegar si estamos en la pantalla de login
             val current = navController.currentDestination?.route
             if (current == Screen.Login.route || current == null) {
                 navController.navigate(dest) {
                     popUpTo(Screen.Login.route) { inclusive = true }
                 }
+            }
+        } else {
+            // Logout: volver a login limpiando todo el backstack
+            navController.navigate(Screen.Login.route) {
+                popUpTo(0) { inclusive = true }
             }
         }
     }
@@ -82,12 +86,7 @@ fun AppNavigation() {
             PatientMainScreen(
                 user          = currentUser,
                 onCrisisClick = { navController.navigate(Screen.Crisis.route) },
-                onLogout      = {
-                    authViewModel.logout()
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
+                onLogout      = { authViewModel.logout() }
             )
         }
 
@@ -103,10 +102,7 @@ fun AppNavigation() {
         composable(Screen.SpecialistHome.route) {
             SpecialistHomeScreen(
                 specialist = currentUser,
-                onLogout   = {
-                    authViewModel.logout()
-                    navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
-                }
+                onLogout   = { authViewModel.logout() }
             )
         }
 
@@ -114,10 +110,7 @@ fun AppNavigation() {
         composable(Screen.Admin.route) {
             AdminScreen(
                 user     = currentUser,
-                onLogout = {
-                    authViewModel.logout()
-                    navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
-                }
+                onLogout = { authViewModel.logout() }
             )
         }
     }

@@ -39,6 +39,7 @@ private val Teal50  = Color(0xFFE0F2F1)
 fun AudiometryScreen(
     patientId: Long,
     onBack: () -> Unit,
+    showBackButton: Boolean = false,
     vm: AudiometryViewModel = viewModel()
 ) {
     val affectedEar  by vm.affectedEar.collectAsState()
@@ -62,8 +63,10 @@ fun AudiometryScreen(
             TopAppBar(
                 title = { Text("Audiometría") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                    if (showBackButton) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -74,7 +77,6 @@ fun AudiometryScreen(
         }
     ) { padding ->
 
-        // ── Si no hay oído elegido, mostrar pantalla de selección ─────────────
         if (affectedEar == null) {
             EarSelectionScreen(
                 modifier = Modifier.padding(padding),
@@ -83,7 +85,6 @@ fun AudiometryScreen(
             return@Scaffold
         }
 
-        // ── Pantalla de audiometría (un solo oído) ────────────────────────────
         val earLabel = if (affectedEar == "LEFT") "Izquierdo" else "Derecho"
         val earColor = if (affectedEar == "LEFT") Color(0xFF1565C0) else Color(0xFFD32F2F)
 
@@ -102,7 +103,6 @@ fun AudiometryScreen(
                 modifier = Modifier.padding(top = 4.dp, bottom = 14.dp)
             )
 
-            // ── Audiograma de un canal ────────────────────────────────────────
             SingleChannelAudiogramChart(
                 thresholds  = thresholds,
                 frequencies = vm.frequencies,
@@ -112,7 +112,6 @@ fun AudiometryScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Sliders ───────────────────────────────────────────────────────
             Text("Canal $earLabel", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
             Spacer(Modifier.height(8.dp))
 
@@ -158,7 +157,6 @@ fun AudiometryScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Botón guardar ─────────────────────────────────────────────────
             Button(
                 onClick  = { vm.saveAndPredict(patientId) },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -176,7 +174,6 @@ fun AudiometryScreen(
                 }
             }
 
-            // ── Resultado ML ──────────────────────────────────────────────────
             when (val state = serverState) {
                 is ServerAnalysisState.Success -> {
                     Spacer(Modifier.height(16.dp))
@@ -201,7 +198,6 @@ fun AudiometryScreen(
                 else -> {}
             }
 
-            // ── Badge fc ML guardada ──────────────────────────────────────────
             mlFc?.let { fc ->
                 Spacer(Modifier.height(12.dp))
                 Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1))) {
@@ -232,7 +228,6 @@ fun AudiometryScreen(
                 }
             }
 
-            // ── Mensaje ───────────────────────────────────────────────────────
             message?.let { msg ->
                 Spacer(Modifier.height(8.dp))
                 Card(colors = CardDefaults.cardColors(containerColor = Teal700)) {
@@ -344,10 +339,8 @@ fun SingleChannelAudiogramChart(
 
                 fun dbToY(db: Int) = h * (db - minDb) / range
 
-                // Líneas de cuadrícula
                 repeat(6) { i -> drawLine(Color.LightGray, Offset(0f, h * i / 5f), Offset(w, h * i / 5f), strokeWidth = 1f) }
 
-                // Curva
                 val path = Path()
                 frequencies.forEachIndexed { i, freq ->
                     val x = i * xStep
@@ -356,7 +349,6 @@ fun SingleChannelAudiogramChart(
                 }
                 drawPath(path, color, style = Stroke(width = 3f))
 
-                // Puntos
                 frequencies.forEachIndexed { i, freq ->
                     val x = i * xStep
                     val y = dbToY(thresholds[freq] ?: 20)
@@ -366,14 +358,12 @@ fun SingleChannelAudiogramChart(
             }
         }
 
-        // Etiquetas de frecuencia
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             frequencies.forEach { f ->
                 Text(if (f >= 1000) "${f / 1000}k" else "$f", fontSize = 10.sp, color = Color.Gray)
             }
         }
 
-        // Leyenda
         Row(modifier = Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
             Surface(color = color, shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.size(12.dp)) {}
             Spacer(Modifier.width(4.dp))
@@ -383,7 +373,7 @@ fun SingleChannelAudiogramChart(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  ServerResultCard (sin cambios respecto al original)
+//  ServerResultCard
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
@@ -473,7 +463,7 @@ fun ServerResultCard(result: TinnitusApiResult) {
     }
 }
 
-// AudiogramChart se mantiene por si otros lugares lo llaman
+// AudiogramChart kept for backward compatibility
 @Composable
 fun AudiogramChart(left: Map<Int, Int>, right: Map<Int, Int>, frequencies: List<Int>) {
     SingleChannelAudiogramChart(left, frequencies, Color(0xFF1565C0), "Oído Izquierdo")

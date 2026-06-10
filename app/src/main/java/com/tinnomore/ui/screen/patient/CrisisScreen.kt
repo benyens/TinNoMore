@@ -183,9 +183,9 @@ fun CrisisScreen(
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text("Terapias disponibles", fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(8.dp))
-                                TherapyRow("", "Notch Therapy — Estándar")
                                 TherapyRow("", "Ruido blanco")
-                                TherapyRow("", "Sonidos de naturaleza")
+                                TherapyRow("", "Ruido rosa")
+                                TherapyRow("", "Ruido café")
                             }
                         }
                         Spacer(Modifier.height(20.dp))
@@ -220,22 +220,6 @@ fun CrisisScreen(
                                 color     = Color(0xFFB71C1C),
                                 fontSize  = 14.sp
                             )
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        r.therapyIntensity?.let { intensity ->
-                            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))) {
-                                Column(modifier = Modifier.padding(14.dp)) {
-                                    Text("Terapia ajustada automáticamente", fontWeight = FontWeight.Bold)
-                                    Spacer(Modifier.height(6.dp))
-                                    TherapyRow("", "Notch Therapy — Intensidad: ${(intensity * 100).toInt()}%")
-                                    Text(
-                                        "La intensidad fue calculada en base a los ${r.decibels.toInt()} dB detectados.",
-                                        fontSize = 12.sp,
-                                        color    = Color.Gray,
-                                        modifier = Modifier.padding(top = 6.dp)
-                                    )
-                                }
-                            }
                         }
                         Spacer(Modifier.height(20.dp))
                         OutlinedButton(onClick = { vm.reset() }) { Text("Nuevo análisis") }

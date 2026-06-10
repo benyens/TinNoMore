@@ -22,11 +22,15 @@ import com.tinnomore.viewmodel.SymptomViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+private val SymptomPrimary     = Color(0xFF1565C0)   // TinBlue
+private val SymptomPrimaryDark = Color(0xFF003C8F)   // TinBlueDark
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SymptomScreen(
     patientId: Long,
     onBack: () -> Unit,
+    showBackButton: Boolean = false,
     vm: SymptomViewModel = viewModel()
 ) {
     val uiState by vm.uiState.collectAsState()
@@ -37,8 +41,7 @@ fun SymptomScreen(
 
     LaunchedEffect(patientId) { vm.loadSymptoms(patientId) }
 
-    // Mostrar toast auto-dismiss
-    toast?.let { (isSuccess, msg) ->
+    toast?.let { (_, msg) ->
         LaunchedEffect(msg) {
             kotlinx.coroutines.delay(3000)
             vm.clearToast()
@@ -50,12 +53,14 @@ fun SymptomScreen(
             TopAppBar(
                 title = { Text("Registro de Síntomas") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                    if (showBackButton) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor    = MaterialTheme.colorScheme.primary,
+                    containerColor    = SymptomPrimary,
                     titleContentColor = Color.White
                 )
             )
@@ -63,7 +68,7 @@ fun SymptomScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick          = { editingSymptom = null; showDialog = true },
-                containerColor   = MaterialTheme.colorScheme.primary
+                containerColor   = SymptomPrimary
             ) {
                 Icon(Icons.Default.Add, "Registrar síntoma", tint = Color.White)
             }
@@ -87,7 +92,6 @@ fun SymptomScreen(
                     }
                 }
 
-                // HU-03-4: sin registros / HU-03-3: lista ordenada descendente
                 is SymptomUiState.Success -> {
                     if (s.symptoms.isEmpty()) {
                         Column(
@@ -181,7 +185,6 @@ private fun SymptomCard(symptom: SymptomEntry, onEdit: () -> Unit) {
                     Text("Concentración: $it/10", fontSize = 13.sp, color = Color.DarkGray)
                 }
             }
-            // HU-03-5: mostrar botón de edición sólo si < 24 h
             if (canEdit) {
                 IconButton(onClick = onEdit) {
                     Icon(Icons.Default.Edit, "Editar", tint = MaterialTheme.colorScheme.primary)
@@ -229,7 +232,6 @@ private fun SymptomDialog(
         title = { Text(if (existing != null) "Editar registro" else "Registrar síntomas") },
         text  = {
             Column {
-                // Intensidad obligatoria (HU-03-1 / HU-03-2)
                 Text("Intensidad del tinnitus *", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 Slider(
                     value          = intensity,
@@ -240,7 +242,7 @@ private fun SymptomDialog(
                 )
                 Text(
                     "${intensity.toInt()} / 10",
-                    color    = MaterialTheme.colorScheme.primary,
+                    color      = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
                 if (showIntensityError) {

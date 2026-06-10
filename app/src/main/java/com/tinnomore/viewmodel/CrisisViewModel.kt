@@ -151,8 +151,7 @@ class CrisisViewModel(application: Application) : AndroidViewModel(application) 
             // HU-02-3: ambiente seguro
             therapyIntensity = null
             message = "El ambiente es seguro para tu tinnitus " +
-                    "(${decibels.toInt()} dB). " +
-                    "Se muestra tu selección de terapias habitual."
+                    "(${decibels.toInt()} dB). "
             _state.value = CrisisState.SAFE
         } else {
             // HU-02-2: decibelios fuera del rango seguro → modificar intensidad
@@ -161,7 +160,7 @@ class CrisisViewModel(application: Application) : AndroidViewModel(application) 
             therapyIntensity = ((decibels - SAFE_DB_THRESHOLD) / 35f).coerceIn(0.1f, 1.0f)
             message = "El ruido ambiental detectado (${decibels.toInt()} dB) " +
                     "podría provocar daño permanente a tus oídos. " +
-                    "La intensidad de la Notch Therapy ha sido ajustada automáticamente."
+                    "Se recomienda abandonar el lugar cuanto antes o usar protectores de oído."
             _state.value = CrisisState.DANGEROUS
         }
 

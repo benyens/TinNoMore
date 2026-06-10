@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.GraphicEq
@@ -46,7 +47,6 @@ private val AmberBg  = Color(0xFFFFF8E1)
 private val Red50    = Color(0xFFFFEBEE)
 private val Red400   = Color(0xFFEF5350)
 
-// Colores por tipo de ruido (borde/texto cuando está activo)
 private val noiseAccent = mapOf(
     NoiseType.PINK  to Color(0xFFAD1457),
     NoiseType.WHITE to Color(0xFF37474F),
@@ -60,10 +60,12 @@ private val noiseBg = mapOf(
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotchTherapyScreen(
     patientId: Long,
     onBack: () -> Unit = {},
+    showBackButton: Boolean = false,
     audiometryVm: AudiometryViewModel = viewModel(),
     notchVm: NotchViewModel = viewModel()
 ) {
@@ -76,121 +78,127 @@ fun NotchTherapyScreen(
 
     LaunchedEffect(patientId) { audiometryVm.loadLatestProfile(patientId) }
 
-    // Auto-selecciona la fc del ML apenas llega, sin sobreescribir si el usuario ya eligió otra
     LaunchedEffect(predictedFc) {
         predictedFc?.let { fc ->
             if (notchVm.availableFrequencies.contains(fc)) notchVm.setFrequency(fc)
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // ── Header ────────────────────────────────────────────────────────────
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.GraphicEq, null, tint = Teal700, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.width(8.dp))
-            Text("Notch Therapy", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Teal700)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Notch Therapy") },
+                navigationIcon = {
+                    if (showBackButton) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor    = Teal700,
+                    titleContentColor = Color.White
+                )
+            )
         }
-        Text(
-            "Filtra la frecuencia de tu tinnitus del ruido de fondo",
-            fontSize = 13.sp, color = Color.Gray,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
-        )
-
-        // ── 1. Tipo de ruido + acordeón ───────────────────────────────────────
-        NoiseSelector(
-            selected  = noiseType,
-            isPlaying = isPlaying,
-            onSelect  = { notchVm.setNoiseType(it) }
-        )
-
-        Spacer(Modifier.height(14.dp))
-
-        // ── 2. Selector de frecuencia ─────────────────────────────────────────
-        FrequencySelector(
-            frequencies = notchVm.availableFrequencies,
-            selected    = selectedFreq,
-            predictedFc = predictedFc,
-            onSelect    = { notchVm.setFrequency(it) }
-        )
-
-        Spacer(Modifier.height(14.dp))
-
-        // ── 3. Rango del notch ────────────────────────────────────────────────
-        NotchRangeCard(fcHz = selectedFreq)
-
-        Spacer(Modifier.height(14.dp))
-
-        // ── 4. Volumen ────────────────────────────────────────────────────────
-        VolumeCard(volumeDb = volumeDb, onVolumeChange = { notchVm.setVolume(it) })
-
-        Spacer(Modifier.height(20.dp))
-
-        // ── Estado generación ─────────────────────────────────────────────────
-        AnimatedVisibility(genState is NotchGenState.Generating) {
-            Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Teal50)
-                        .padding(14.dp)
-                ) {
-                    CircularProgressIndicator(color = Teal700, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                    Spacer(Modifier.width(10.dp))
-                    Text("Procesando audio con notch…", fontSize = 13.sp, color = Teal700)
-                }
-                Spacer(Modifier.height(8.dp))
-            }
-        }
-        AnimatedVisibility(genState is NotchGenState.Error) {
-            Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Red50)
-                        .padding(14.dp)
-                ) {
-                    Text("⚠ ${(genState as? NotchGenState.Error)?.msg}", fontSize = 13.sp, color = Red400)
-                }
-                Spacer(Modifier.height(8.dp))
-            }
-        }
-
-        // ── 5. Play / Pause ───────────────────────────────────────────────────
-        PlayButton(
-            isPlaying = isPlaying,
-            isLoading = genState is NotchGenState.Generating,
-            noiseType = noiseType,
-            onToggle  = { if (isPlaying) notchVm.stop() else notchVm.play() }
-        )
-
-        AnimatedVisibility(
-            visible = isPlaying,
-            enter   = fadeIn() + expandVertically(),
-            exit    = fadeOut() + shrinkVertically()
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(padding)
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Spacer(Modifier.height(14.dp))
-                PlayingBadge(fcHz = selectedFreq, noiseType = noiseType, volumeDb = volumeDb)
-            }
-        }
+            // ── 1. Tipo de ruido + acordeón ───────────────────────────────────────
+            NoiseSelector(
+                selected  = noiseType,
+                isPlaying = isPlaying,
+                onSelect  = { notchVm.setNoiseType(it) }
+            )
 
-        Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(14.dp))
+
+            // ── 2. Selector de frecuencia ─────────────────────────────────────────
+            FrequencySelector(
+                frequencies = notchVm.availableFrequencies,
+                selected    = selectedFreq,
+                predictedFc = predictedFc,
+                onSelect    = { notchVm.setFrequency(it) }
+            )
+
+            Spacer(Modifier.height(14.dp))
+
+            // ── 3. Rango del notch ────────────────────────────────────────────────
+            NotchRangeCard(fcHz = selectedFreq)
+
+            Spacer(Modifier.height(14.dp))
+
+            // ── 4. Volumen ────────────────────────────────────────────────────────
+            VolumeCard(volumeDb = volumeDb, onVolumeChange = { notchVm.setVolume(it) })
+
+            Spacer(Modifier.height(20.dp))
+
+            // ── Estado generación ─────────────────────────────────────────────────
+            AnimatedVisibility(genState is NotchGenState.Generating) {
+                Column {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Teal50)
+                            .padding(14.dp)
+                    ) {
+                        CircularProgressIndicator(color = Teal700, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(10.dp))
+                        Text("Procesando audio con notch…", fontSize = 13.sp, color = Teal700)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+            AnimatedVisibility(genState is NotchGenState.Error) {
+                Column {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Red50)
+                            .padding(14.dp)
+                    ) {
+                        Text("⚠ ${(genState as? NotchGenState.Error)?.msg}", fontSize = 13.sp, color = Red400)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+
+            // ── 5. Play / Pause ───────────────────────────────────────────────────
+            PlayButton(
+                isPlaying = isPlaying,
+                isLoading = genState is NotchGenState.Generating,
+                noiseType = noiseType,
+                onToggle  = { if (isPlaying) notchVm.stop() else notchVm.play() }
+            )
+
+            AnimatedVisibility(
+                visible = isPlaying,
+                enter   = fadeIn() + expandVertically(),
+                exit    = fadeOut() + shrinkVertically()
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(Modifier.height(14.dp))
+                    PlayingBadge(fcHz = selectedFreq, noiseType = noiseType, volumeDb = volumeDb)
+                }
+            }
+
+            Spacer(Modifier.height(32.dp))
+        }
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  NoiseSelector — chips fijos + acordeón "¿En qué se diferencian?"
+//  NoiseSelector
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
@@ -208,7 +216,6 @@ private fun NoiseSelector(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            // Título + badge "Detener para cambiar"
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -228,7 +235,6 @@ private fun NoiseSelector(
 
             Spacer(Modifier.height(12.dp))
 
-            // Chips de selección — tamaño fijo, solo el borde/fondo cambia
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -246,7 +252,6 @@ private fun NoiseSelector(
 
             Spacer(Modifier.height(10.dp))
 
-            // Acordeón "¿En qué se diferencian?"
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -341,7 +346,7 @@ private fun NoiseInfoRow(emoji: String, bold: String?, text: String) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  FrequencySelector — predictedFc preseleccionado y resaltado en ámbar
+//  FrequencySelector
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
@@ -375,7 +380,6 @@ private fun FrequencySelector(
                 }
             }
 
-            // Frecuencia grande — ámbar si es la predicha por ML
             val isMLSelected = selected == predictedFc
             Text(
                 FrequencyPredictor.freqLabel(selected),
@@ -406,7 +410,6 @@ private fun FrequencySelector(
                     val isSelected  = freq == selected
                     val isPredicted = freq == predictedFc
 
-                    // Chip ámbar si es predicción ML, teal si está seleccionado, base si ninguno
                     val chipBg = when {
                         isSelected && isPredicted -> Amber600
                         isSelected               -> Teal700

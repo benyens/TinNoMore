@@ -66,7 +66,7 @@ class AudiometryViewModel(application: Application) : AndroidViewModel(applicati
 
     // ─── Selección de oído ────────────────────────────────────────────────────
 
-    fun selectEar(ear: String) {           // "LEFT" o "RIGHT"
+    fun selectEar(ear: String?) {           // "LEFT", "RIGHT", or null to reset
         _affectedEar.value = ear
     }
 

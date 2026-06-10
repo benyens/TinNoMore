@@ -25,7 +25,7 @@ import com.tinnomore.data.db.entity.User
 // ─── Pestañas del paciente ────────────────────────────────────────────────────
 
 enum class PatientTab {
-    SYMPTOMS, AUDIOMETRY, NOTCH, SETTINGS
+    HOME, AUDIOMETRY, NOTCH, SYMPTOMS
 }
 
 private data class TabInfo(
@@ -35,13 +35,13 @@ private data class TabInfo(
 )
 
 private val LEFT_TABS = listOf(
-    TabInfo(PatientTab.SYMPTOMS,  Icons.Default.EditNote,        "Síntomas"),
+    TabInfo(PatientTab.HOME,      Icons.Default.Home,           "Inicio"),
     TabInfo(PatientTab.AUDIOMETRY, Icons.Default.HearingDisabled, "Audición")
 )
 
 private val RIGHT_TABS = listOf(
-    TabInfo(PatientTab.NOTCH,     Icons.Default.MusicNote, "Notch"),
-    TabInfo(PatientTab.SETTINGS,  Icons.Default.Settings,  "Ajustes")
+    TabInfo(PatientTab.NOTCH,    Icons.Default.MusicNote, "Notch"),
+    TabInfo(PatientTab.SYMPTOMS, Icons.Default.EditNote,  "Síntomas")
 )
 
 // ─── Pantalla principal del paciente ─────────────────────────────────────────
@@ -61,7 +61,7 @@ fun PatientMainScreen(
     onLogout: () -> Unit
 ) {
     val patientId = user?.id ?: 0L
-    var selectedTab by remember { mutableStateOf(PatientTab.SYMPTOMS) }
+    var selectedTab by remember { mutableStateOf(PatientTab.HOME) }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -78,10 +78,16 @@ fun PatientMainScreen(
                 label = "tab_content"
             ) { tab ->
                 when (tab) {
+                    PatientTab.HOME       -> PatientHomeScreen(
+                        user             = user,
+                        onCrisisClick    = onCrisisClick,
+                        onSymptomsClick  = { selectedTab = PatientTab.SYMPTOMS },
+                        onAudiometryClick = { selectedTab = PatientTab.AUDIOMETRY },
+                        onLogout         = onLogout
+                    )
                     PatientTab.SYMPTOMS   -> SymptomScreen(patientId = patientId, onBack = {})
                     PatientTab.AUDIOMETRY -> AudiometryScreen(patientId = patientId, onBack = {})
                     PatientTab.NOTCH      -> NotchTherapyScreen(patientId = patientId)
-                    PatientTab.SETTINGS   -> SettingsScreen(user = user, onLogout = onLogout)
                 }
             }
         }

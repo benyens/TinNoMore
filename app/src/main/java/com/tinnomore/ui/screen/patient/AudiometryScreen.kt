@@ -63,9 +63,17 @@ fun AudiometryScreen(
             TopAppBar(
                 title = { Text("Audiometría") },
                 navigationIcon = {
-                    if (showBackButton) {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                    when {
+                        affectedEar != null -> {
+                            // Back button to re-select ear
+                            IconButton(onClick = { vm.selectEar(null) }) {
+                                Icon(Icons.Default.ArrowBack, "Cambiar oído", tint = Color.White)
+                            }
+                        }
+                        showBackButton -> {
+                            IconButton(onClick = onBack) {
+                                Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                            }
                         }
                     }
                 },

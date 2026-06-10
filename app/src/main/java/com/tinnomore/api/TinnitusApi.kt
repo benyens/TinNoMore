@@ -83,7 +83,7 @@ interface TinnitusApiService {
 object TinnitusApi {
 
     // ⚠️ Cambia esto por la IP o dominio de tu Oracle Cloud
-    private const val BASE_URL = "http://168.129.178.155/"
+    private const val BASE_URL = "https://api.tinnomore.xyz/"
 
     // ⚠️ Mueve esto a BuildConfig o EncryptedSharedPreferences en producción
     const val API_KEY = "pon-aqui-tu-clave-segura-8966ea19eefe968ede394f46"

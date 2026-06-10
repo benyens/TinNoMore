@@ -50,7 +50,7 @@ interface TinnitusApiService {
 
 object TinnitusApi {
     // ⚠️ Reemplaza con tu IP real
-    private const val BASE_URL = "http://168.129.178.155/"
+    private const val BASE_URL = "https://api.tinnomore.xyz/"
     const val API_KEY = "pon-aqui-tu-clave-segura-8966ea19eefe968ede394f46"
 
     val service: TinnitusApiService by lazy {

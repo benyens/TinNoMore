@@ -59,7 +59,17 @@ abstract class AppDatabase : RoomDatabase() {
                     email = "paciente2@demo.com", password = "1234", role = UserRole.PATIENT)
             )
             db.userDao().insert(
-                User(name = "Dr. Carlos Muñoz", rut = "11.111.111-1",
+                User(name = "Ivan Bustos", rut = "11.111.111-1",
+                    email = "paciente3@demo.com", password = "1234", role = UserRole.PATIENT)
+
+            )
+            db.userDao().insert(
+                User(name = "Juan Gaete", rut = "11.111.111-2",
+                    email = "paciente4@demo.com", password = "1234", role = UserRole.PATIENT)
+
+            )
+            db.userDao().insert(
+                User(name = "Carlos Muñoz", rut = "11.111.111-1",
                     email = "especialista@demo.com", password = "1234", role = UserRole.SPECIALIST)
             )
             db.userDao().insert(

@@ -229,16 +229,6 @@ fun CrisisScreen(
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(Modifier.height(8.dp))
-                                Text(
-                                    "Terapia disponible para ambientes ruidosos:",
-                                    textAlign = TextAlign.Center,
-                                    color     = Color.Black,
-                                    fontSize  = 14.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(Modifier.height(8.dp))
-
-                                TherapyRow("🟤", "Ruido café") { onNavigateToTherapy(NotchProcessor.NoiseType.BROWN) }
 
                                 Text(
                                     "Es poco recomendable usar terapias en un ambiente tan ruidoso.",

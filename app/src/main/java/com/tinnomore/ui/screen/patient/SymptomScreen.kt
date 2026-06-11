@@ -235,14 +235,18 @@ private fun SymptomDialog(
                 Text("Intensidad del tinnitus *", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 Slider(
                     value          = intensity,
-                    onValueChange  = { intensity = it; intensityTouched = true },
+                    onValueChange  = {
+                        intensity = it
+                        intensityTouched = true
+                        showIntensityError = false
+                    },
                     valueRange     = 1f..10f,
                     steps          = 8,
                     modifier       = Modifier.fillMaxWidth()
                 )
                 Text(
-                    "${intensity.toInt()} / 10",
-                    color      = MaterialTheme.colorScheme.primary,
+                    if (intensityTouched) "${intensity.toInt()} / 10" else "No seleccionada",
+                    color      = if (intensityTouched) MaterialTheme.colorScheme.primary else Color.Gray,
                     fontWeight = FontWeight.Bold
                 )
                 if (showIntensityError) {

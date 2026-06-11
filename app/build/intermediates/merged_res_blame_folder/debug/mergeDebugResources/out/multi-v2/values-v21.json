@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.tinnomore.app-mergeDebugResources-53:/values-v21/values-v21.xml",
+            "outputFile": "com.tinnomore.app-mergeDebugResources-55:/values-v21/values-v21.xml",
             "map": [
                 {
-                    "source": "/home/haxedi/.gradle/caches/9.4.1/transforms/e188fd56ede845eaad3eaac2390bc80b/transformed/core-1.12.0/res/values-v21/values-v21.xml",
+                    "source": "C:\\Users\\Erick\\.gradle\\caches\\9.5.0\\transforms\\84f683c1822048b744fa77bae1c03b63\\transformed\\core-1.12.0\\res\\values-v21\\values-v21.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,13",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",

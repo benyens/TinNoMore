@@ -52,7 +52,7 @@ public class AppDatabase_Impl : AppDatabase() {
   }
 
   protected override fun createOpenDelegate(): RoomOpenDelegate {
-    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(1, "2ee61f028141f11279a6a7254b6ae760", "8d7202ca3636cd1e11480ebb62170bca") {
+    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(2, "2ee61f028141f11279a6a7254b6ae760", "8d7202ca3636cd1e11480ebb62170bca") {
       public override fun createAllTables(connection: SQLiteConnection) {
         connection.execSQL("CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `rut` TEXT NOT NULL, `email` TEXT NOT NULL, `password` TEXT NOT NULL, `role` TEXT NOT NULL)")
         connection.execSQL("CREATE TABLE IF NOT EXISTS `symptoms` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `intensity` INTEGER NOT NULL, `durationMinutes` INTEGER, `sleepImpact` INTEGER, `concentrationImpact` INTEGER)")

@@ -13,7 +13,7 @@ import com.tinnomore.data.db.entity.*
         CrisisRecord::class,
         TherapySession::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

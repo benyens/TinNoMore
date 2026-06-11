@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tinnomore.data.db.entity.User
+import com.tinnomore.util.NotchProcessor
 
 // ─── Pestañas del paciente ────────────────────────────────────────────────────
 
@@ -58,10 +59,18 @@ private val RIGHT_TABS = listOf(
 fun PatientMainScreen(
     user: User?,
     onCrisisClick: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    initialNoiseType: NotchProcessor.NoiseType? = null
 ) {
     val patientId = user?.id ?: 0L
     var selectedTab by remember { mutableStateOf(PatientTab.HOME) }
+
+    // Si venimos de CrisisScreen con una recomendación, cambiar a Notch y pasar el tipo
+    LaunchedEffect(initialNoiseType) {
+        if (initialNoiseType != null) {
+            selectedTab = PatientTab.NOTCH
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -87,7 +96,10 @@ fun PatientMainScreen(
                     )
                     PatientTab.SYMPTOMS   -> SymptomScreen(patientId = patientId, onBack = {})
                     PatientTab.AUDIOMETRY -> AudiometryScreen(patientId = patientId, onBack = {})
-                    PatientTab.NOTCH      -> NotchTherapyScreen(patientId = patientId)
+                    PatientTab.NOTCH      -> NotchTherapyScreen(
+                        patientId = patientId,
+                        initialNoiseType = initialNoiseType
+                    )
                 }
             }
         }

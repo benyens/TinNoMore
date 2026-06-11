@@ -1,6 +1,8 @@
 package com.tinnomore.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tinnomore.data.api.AudiogramRequest
@@ -14,6 +16,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 // ── Estado del análisis ML ────────────────────────────────────────────────────
 sealed class ServerAnalysisState {
@@ -29,25 +34,21 @@ class AudiometryViewModel(application: Application) : AndroidViewModel(applicati
         AppDatabase.getDatabase(application).audiometryDao()
     )
 
-    // Frecuencias del audiograma (se usan en la UI)
-    val frequencies = FrequencyPredictor.FREQUENCIES   // [250, 500, 1000, 2000, 4000, 8000]
+    val frequencies = FrequencyPredictor.FREQUENCIES
 
     private val defaultThresholds get() = frequencies.associateWith { 20 }
 
     // ── Oído afectado ─────────────────────────────────────────────────────────
-    // null = no elegido aún (se muestra la pantalla de selección)
     private val _affectedEar = MutableStateFlow<String?>(null)
     val affectedEar: StateFlow<String?> = _affectedEar.asStateFlow()
 
-    // ── Umbrales del oído afectado ────────────────────────────────────────────
+    // ── Umbrales ──────────────────────────────────────────────────────────────
     private val _thresholds = MutableStateFlow<Map<Int, Int>>(defaultThresholds)
     val thresholds: StateFlow<Map<Int, Int>> = _thresholds.asStateFlow()
 
-    // ── Frecuencia central ────────────────────────────────────────────────────
-    // Fuente de verdad: resultado del servidor ML.
-    // NotchTherapyScreen y cualquier otra vista leen ESTE valor.
+    // ── Frecuencia central ML ─────────────────────────────────────────────────
     private val _mlPredictedFc = MutableStateFlow<Int?>(null)
-    val predictedFc: StateFlow<Int?> = _mlPredictedFc.asStateFlow()   // nombre público sin cambio
+    val predictedFc: StateFlow<Int?> = _mlPredictedFc.asStateFlow()
 
     // ── Estados auxiliares ────────────────────────────────────────────────────
     private val _savedProfile = MutableStateFlow<AudiometryProfile?>(null)
@@ -59,14 +60,21 @@ class AudiometryViewModel(application: Application) : AndroidViewModel(applicati
     private val _serverState = MutableStateFlow<ServerAnalysisState>(ServerAnalysisState.Idle)
     val serverState: StateFlow<ServerAnalysisState> = _serverState.asStateFlow()
 
-    // ── Compatibilidad con NotchViewModel (lee left/right del perfil previo) ──
-    // Se mantienen como alias del canal afectado para no romper código existente.
+    // ── Estado de análisis por imagen ─────────────────────────────────────────
+    private val _imageAnalysisState = MutableStateFlow<ServerAnalysisState>(ServerAnalysisState.Idle)
+    val imageAnalysisState: StateFlow<ServerAnalysisState> = _imageAnalysisState.asStateFlow()
+
+    /** URI de la imagen seleccionada/tomada (para mostrar preview) */
+    private val _selectedImageUri = MutableStateFlow<Uri?>(null)
+    val selectedImageUri: StateFlow<Uri?> = _selectedImageUri.asStateFlow()
+
+    // ── Compatibilidad ────────────────────────────────────────────────────────
     val left : StateFlow<Map<Int, Int>> get() = _thresholds
     val right: StateFlow<Map<Int, Int>> get() = _thresholds
 
     // ─── Selección de oído ────────────────────────────────────────────────────
 
-    fun selectEar(ear: String?) {           // "LEFT", "RIGHT", or null to reset
+    fun selectEar(ear: String?) {
         _affectedEar.value = ear
     }
 
@@ -76,18 +84,23 @@ class AudiometryViewModel(application: Application) : AndroidViewModel(applicati
         _thresholds.value = _thresholds.value.toMutableMap().also { it[freq] = db }
     }
 
-    // Para compatibilidad con código que llama setLeftThreshold / setRightThreshold
     fun setLeftThreshold(freq: Int, db: Int)  = setThreshold(freq, db)
     fun setRightThreshold(freq: Int, db: Int) = setThreshold(freq, db)
 
-    // ─── Guardar y analizar con ML ────────────────────────────────────────────
+    // ─── URI de imagen ────────────────────────────────────────────────────────
+
+    fun setSelectedImage(uri: Uri?) {
+        _selectedImageUri.value = uri
+        if (uri == null) _imageAnalysisState.value = ServerAnalysisState.Idle
+    }
+
+    // ─── Guardar y analizar con valores numéricos ─────────────────────────────
 
     fun saveAndPredict(patientId: Long) {
         val ear  = _affectedEar.value ?: "LEFT"
         val data = _thresholds.value
 
         viewModelScope.launch {
-            // Guarda provisionalmente sin fc ML (la actualiza cuando el servidor responde)
             val profile = AudiometryProfile(
                 patientId        = patientId,
                 affectedEar      = ear,
@@ -102,12 +115,10 @@ class AudiometryViewModel(application: Application) : AndroidViewModel(applicati
             _message.value = "Audiometría guardada. Analizando con IA…"
         }
 
-        // Llama al servidor ML y, si responde, actualiza predictedFc
         analyzeWithServer(data, patientId)
     }
 
     private fun analyzeWithServer(data: Map<Int, Int>, patientId: Long) {
-        // Construye el request a partir del oído afectado
         fun db(freq: Int) = (data[freq] ?: 20).toFloat()
         val db3000 = ((data[2000] ?: 20) + (data[4000] ?: 20)) / 2f
         val db6000 = if (data.containsKey(6000)) db(6000)
@@ -132,11 +143,9 @@ class AudiometryViewModel(application: Application) : AndroidViewModel(applicati
                     val result = response.body()!!
                     _serverState.value = ServerAnalysisState.Success(result)
 
-                    // Frecuencia ML: usa central_freq_hz si hay tinnitus, si no null
                     val mlFc = if (result.tinnitus) result.central_freq_hz else null
                     _mlPredictedFc.value = mlFc
 
-                    // Actualiza el perfil guardado con la fc ML
                     val ear  = _affectedEar.value ?: "LEFT"
                     val data2 = _thresholds.value
                     val updated = AudiometryProfile(
@@ -164,6 +173,53 @@ class AudiometryViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    // ─── Analizar imagen de audiograma ────────────────────────────────────────
+
+    /**
+     * Lee el URI de la imagen, construye un MultipartBody y llama a /analyze-image.
+     * Actualiza [imageAnalysisState] y, si hay tinnitus, también [predictedFc].
+     */
+    fun analyzeImageAudiogram(context: Context, imageUri: Uri, patientId: Long) {
+        viewModelScope.launch {
+            _imageAnalysisState.value = ServerAnalysisState.Loading
+            try {
+                val bytes = context.contentResolver.openInputStream(imageUri)?.readBytes()
+                    ?: run {
+                        _imageAnalysisState.value = ServerAnalysisState.Error("No se pudo leer la imagen")
+                        return@launch
+                    }
+
+                val requestBody = bytes.toRequestBody("image/*".toMediaTypeOrNull())
+                val part = MultipartBody.Part.createFormData("file", "audiogram.jpg", requestBody)
+
+                val response = TinnitusApi.service.analyzeImage(TinnitusApi.API_KEY, part)
+
+                if (response.isSuccessful && response.body() != null) {
+                    val result = response.body()!!
+                    _imageAnalysisState.value = ServerAnalysisState.Success(result)
+
+                    // Si la imagen detecta tinnitus y tiene frecuencia, actualiza predictedFc
+                    val mlFc = if (result.tinnitus) result.central_freq_hz else null
+                    if (mlFc != null) {
+                        _mlPredictedFc.value = mlFc
+                        _message.value = "Imagen analizada. Frecuencia central: ${FrequencyPredictor.freqLabel(mlFc)}"
+                    } else {
+                        _message.value = if (result.tinnitus)
+                            "Imagen: tinnitus detectado (sin frecuencia central)"
+                        else
+                            "Imagen: sin signos de tinnitus"
+                    }
+                } else {
+                    _imageAnalysisState.value = ServerAnalysisState.Error(
+                        "Error del servidor: ${response.code()}"
+                    )
+                }
+            } catch (e: java.net.ConnectException)      { _imageAnalysisState.value = ServerAnalysisState.Error("Sin conexión al servidor") }
+              catch (e: java.net.SocketTimeoutException) { _imageAnalysisState.value = ServerAnalysisState.Error("Timeout — reintenta más tarde") }
+              catch (e: Exception)                       { _imageAnalysisState.value = ServerAnalysisState.Error("Error: ${e.message}") }
+        }
+    }
+
     // ─── Cargar perfil previo ─────────────────────────────────────────────────
 
     fun loadLatestProfile(patientId: Long) {
@@ -173,7 +229,6 @@ class AudiometryViewModel(application: Application) : AndroidViewModel(applicati
             _affectedEar.value  = profile.affectedEar.ifBlank { "LEFT" }
             _mlPredictedFc.value = profile.mlPredictedFc
 
-            // Carga umbrales: prefiere channelData; si vacío, usa el canal afectado viejo
             val channelStr = profile.channelData.ifBlank {
                 if (profile.affectedEar == "RIGHT") profile.rightChannelData
                 else profile.leftChannelData
@@ -183,6 +238,7 @@ class AudiometryViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun clearMessage()     { _message.value = null }
-    fun clearServerState() { _serverState.value = ServerAnalysisState.Idle }
+    fun clearMessage()          { _message.value = null }
+    fun clearServerState()      { _serverState.value = ServerAnalysisState.Idle }
+    fun clearImageAnalysisState() { _imageAnalysisState.value = ServerAnalysisState.Idle }
 }

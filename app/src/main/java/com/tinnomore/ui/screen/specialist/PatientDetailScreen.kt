@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FilterListOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,7 +35,49 @@ fun PatientDetailScreen(
     onBack: () -> Unit,
     vm: SpecialistViewModel
 ) {
-    var showDateFilter by remember { mutableStateOf(false) }
+    var showDateRangePicker by remember { mutableStateOf(false) }
+    val dateRangePickerState = rememberDateRangePickerState()
+    val fmtDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    if (showDateRangePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDateRangePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val start = dateRangePickerState.selectedStartDateMillis
+                        val end = dateRangePickerState.selectedEndDateMillis
+                        if (start != null && end != null) {
+                            // end + 86400000 para incluir el día final completo
+                            vm.filterByDateRange(start, end + 86_400_000L)
+                        }
+                        showDateRangePicker = false
+                    },
+                    enabled = dateRangePickerState.selectedStartDateMillis != null &&
+                            dateRangePickerState.selectedEndDateMillis != null
+                ) {
+                    Text("Aplicar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDateRangePicker = false }) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+            DateRangePicker(
+                state = dateRangePickerState,
+                title = {
+                    Text(
+                        text = "Selecciona el rango de fechas",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                },
+                showModeToggle = false,
+                modifier = Modifier.fillMaxWidth().height(500.dp).padding(16.dp)
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -41,12 +85,12 @@ fun PatientDetailScreen(
                 title = { Text(data.patient.name, maxLines = 1) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = Color.White)
                     }
                 },
                 actions = {
                     // HU-05-3: abrir filtro de fechas
-                    IconButton(onClick = { showDateFilter = !showDateFilter }) {
+                    IconButton(onClick = { showDateRangePicker = true }) {
                         Icon(Icons.Default.DateRange, "Filtrar fechas", tint = Color.White)
                     }
                     IconButton(onClick = { vm.clearFilter() }) {
@@ -76,13 +120,21 @@ fun PatientDetailScreen(
                 }
             }
 
-            // ── HU-05-3: Filtro de fechas ────────────────────────────────
-            if (showDateFilter) {
-                Spacer(Modifier.height(12.dp))
-                DateFilterSection(onApply = { from, to -> vm.filterByDateRange(from, to) })
-            }
-
             Spacer(Modifier.height(16.dp))
+
+            // Indicador de filtro activo
+            if (data.symptoms.isNotEmpty()) {
+                val startStr = fmtDate.format(Date(data.symptoms.minOf { it.timestamp }))
+                val endStr = fmtDate.format(Date(data.symptoms.maxOf { it.timestamp }))
+                
+                AssistChip(
+                    onClick = { vm.clearFilter() },
+                    label = { Text("Rango: $startStr - $endStr") },
+                    leadingIcon = { Icon(Icons.Default.FilterList, null, modifier = Modifier.size(18.dp)) },
+                    trailingIcon = { Icon(Icons.Default.Clear, "Quitar filtro", modifier = Modifier.size(18.dp)) },
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
 
             // ── HU-05-2: Gráficos de evolución ───────────────────────────
             Text("Evolución de síntomas", fontWeight = FontWeight.Bold, fontSize = 16.sp)
@@ -106,11 +158,10 @@ fun PatientDetailScreen(
                 // Estadísticas
                 val avg = data.symptoms.map { it.intensity }.average()
                 val max = data.symptoms.maxOf { it.intensity }
-                val min = data.symptoms.minOf { it.intensity }
 
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     StatBadge(Modifier.weight(1f), "Registros", "${data.symptoms.size}", MaterialTheme.colorScheme.primary)
-                    StatBadge(Modifier.weight(1f), "Promedio",  String.format("%.1f", avg), Color(0xFFE65100))
+                    StatBadge(Modifier.weight(1f), "Promedio",  String.format(Locale.getDefault(), "%.1f", avg), Color(0xFFE65100))
                     StatBadge(Modifier.weight(1f), "Máximo",    "$max / 10", Color(0xFFD32F2F))
                 }
 
@@ -225,56 +276,6 @@ private fun StatBadge(modifier: Modifier, label: String, value: String, color: C
         ) {
             Text(value, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp, color = color)
             Text(label, fontSize = 11.sp, color = Color.Gray)
-        }
-    }
-}
-
-// ─── HU-05-3: Filtro de fechas ───────────────────────────────────────────────
-
-@Composable
-private fun DateFilterSection(onApply: (Long, Long) -> Unit) {
-    var fromText by remember { mutableStateOf("") }
-    var toText   by remember { mutableStateOf("") }
-    var error    by remember { mutableStateOf<String?>(null) }
-    val fmt      = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-
-    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text("Filtrar por rango de fechas", fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value         = fromText,
-                onValueChange = { fromText = it; error = null },
-                label         = { Text("Desde (dd/MM/yyyy)") },
-                modifier      = Modifier.fillMaxWidth(),
-                singleLine    = true
-            )
-            Spacer(Modifier.height(6.dp))
-            OutlinedTextField(
-                value         = toText,
-                onValueChange = { toText = it; error = null },
-                label         = { Text("Hasta (dd/MM/yyyy)") },
-                modifier      = Modifier.fillMaxWidth(),
-                singleLine    = true
-            )
-            error?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
-            Spacer(Modifier.height(8.dp))
-            Button(
-                onClick  = {
-                    try {
-                        val from = fmt.parse(fromText.trim())?.time
-                            ?: throw IllegalArgumentException()
-                        val to   = (fmt.parse(toText.trim())?.time
-                            ?: throw IllegalArgumentException()) + 86_400_000L
-                        onApply(from, to)
-                    } catch (_: Exception) {
-                        error = "Formato inválido. Usa dd/MM/yyyy"
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Aplicar filtro")
-            }
         }
     }
 }

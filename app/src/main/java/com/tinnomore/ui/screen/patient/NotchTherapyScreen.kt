@@ -12,10 +12,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
@@ -66,6 +65,7 @@ fun NotchTherapyScreen(
     patientId: Long,
     onBack: () -> Unit = {},
     showBackButton: Boolean = false,
+    initialNoiseType: NoiseType? = null,
     audiometryVm: AudiometryViewModel = viewModel(),
     notchVm: NotchViewModel = viewModel()
 ) {
@@ -84,6 +84,12 @@ fun NotchTherapyScreen(
         }
     }
 
+    LaunchedEffect(initialNoiseType) {
+        initialNoiseType?.let {
+            notchVm.setNoiseType(it)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -91,7 +97,7 @@ fun NotchTherapyScreen(
                 navigationIcon = {
                     if (showBackButton) {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = Color.White)
                         }
                     }
                 },

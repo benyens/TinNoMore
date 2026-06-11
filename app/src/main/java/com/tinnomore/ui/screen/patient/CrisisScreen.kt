@@ -4,9 +4,11 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tinnomore.util.NotchProcessor
 import com.tinnomore.viewmodel.CrisisState
 import com.tinnomore.viewmodel.CrisisViewModel
 
@@ -27,6 +30,7 @@ import com.tinnomore.viewmodel.CrisisViewModel
 fun CrisisScreen(
     patientId: Long,
     onBack: () -> Unit,
+    onNavigateToTherapy: (NotchProcessor.NoiseType?) -> Unit = {},
     vm: CrisisViewModel = viewModel()
 ) {
     val context   = LocalContext.current
@@ -49,7 +53,7 @@ fun CrisisScreen(
                 title = { Text("Crisis de Tinnitus") },
                 navigationIcon = {
                     IconButton(onClick = { vm.reset(); onBack() }) {
-                        Icon(Icons.Default.ArrowBack, "Volver", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -181,11 +185,11 @@ fun CrisisScreen(
 
                         Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Terapias disponibles", fontWeight = FontWeight.Bold)
+                                Text("Terapias recomendadas", fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(8.dp))
-                                TherapyRow("", "Ruido blanco")
-                                TherapyRow("", "Ruido rosa")
-                                TherapyRow("", "Ruido café")
+                                TherapyRow("⚪", "Ruido blanco") { onNavigateToTherapy(NotchProcessor.NoiseType.WHITE) }
+                                TherapyRow("🌸", "Ruido rosa") { onNavigateToTherapy(NotchProcessor.NoiseType.PINK) }
+                                TherapyRow("🟤", "Ruido café") { onNavigateToTherapy(NotchProcessor.NoiseType.BROWN) }
                             }
                         }
                         Spacer(Modifier.height(20.dp))
@@ -198,8 +202,9 @@ fun CrisisScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         
                         Spacer(Modifier.height(12.dp))
+                        Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(48.dp))
                         Text(
-                            "¡Ruido peligroso!",
+                            "¡Riesgo de daño auditivo!",
                             fontSize   = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color      = Color(0xFFD32F2F),
@@ -211,16 +216,82 @@ fun CrisisScreen(
                             fontWeight = FontWeight.ExtraBold,
                             color      = Color(0xFFD32F2F)
                         )
+
                         Spacer(Modifier.height(12.dp))
                         Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))) {
-                            Text(
-                                r.message,
-                                modifier  = Modifier.padding(14.dp),
-                                textAlign = TextAlign.Center,
-                                color     = Color(0xFFB71C1C),
-                                fontSize  = 14.sp
-                            )
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    "ADVERTENCIA: ${r.message}",
+                                    textAlign = TextAlign.Center,
+                                    color     = Color(0xFFB71C1C),
+                                    fontSize  = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    "Terapia disponible para ambientes ruidosos:",
+                                    textAlign = TextAlign.Center,
+                                    color     = Color.Black,
+                                    fontSize  = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.height(8.dp))
+
+                                TherapyRow("🟤", "Ruido café") { onNavigateToTherapy(NotchProcessor.NoiseType.BROWN) }
+
+                                Text(
+                                    "Es poco recomendable usar terapias en un ambiente tan ruidoso.",
+                                    textAlign = TextAlign.Center,
+                                    color     = Color.DarkGray,
+                                    fontSize  = 13.sp
+                                )
+                            }
                         }
+                        
+                        Spacer(Modifier.height(16.dp))
+
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
+                            border = BorderStroke(1.dp, Color(0xFFFFB74D))
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("Recomendación de emergencia", fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+                                Spacer(Modifier.height(8.dp))
+                                
+                                Text("Se recomienda el uso de ruidos calmantes para mitigar el impacto del ruido actual.", fontSize = 14.sp)
+                                Spacer(Modifier.height(12.dp))
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("🟤", fontSize = 20.sp)
+                                    Spacer(Modifier.width(8.dp))
+                                    Column {
+                                        Text("Ruido Marrón", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                        Text("La opción más segura para proteger tus oídos", fontSize = 12.sp, color = Color.Gray)
+                                    }
+                                }
+                                
+                                Spacer(Modifier.height(16.dp))
+
+                                Button(
+                                    onClick = { onNavigateToTherapy(NotchProcessor.NoiseType.BROWN) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE65100)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("IR A RUIDO MARRÓN")
+                                }
+                                
+                                Spacer(Modifier.height(8.dp))
+
+                                OutlinedButton(
+                                    onClick = { onNavigateToTherapy(null) },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Ver otras opciones de Notch Therapy")
+                                }
+                            }
+                        }
+
                         Spacer(Modifier.height(20.dp))
                         OutlinedButton(onClick = { vm.reset() }) { Text("Nuevo análisis") }
                     }
@@ -231,13 +302,16 @@ fun CrisisScreen(
 }
 
 @Composable
-private fun TherapyRow(emoji: String, label: String) {
+private fun TherapyRow(emoji: String, label: String, onClick: () -> Unit) {
     Row(
         modifier          = Modifier.fillMaxWidth().padding(vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(emoji, fontSize = 18.sp)
         Spacer(Modifier.width(8.dp))
-        Text(label, fontSize = 14.sp)
+        Text(label, fontSize = 14.sp, modifier = Modifier.weight(1f))
+        TextButton(onClick = onClick) {
+            Text("IR", fontWeight = FontWeight.Bold)
+        }
     }
 }

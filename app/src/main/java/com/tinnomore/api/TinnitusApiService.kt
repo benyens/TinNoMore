@@ -1,12 +1,16 @@
 package com.tinnomore.data.api
 
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.http.Part
 import java.util.concurrent.TimeUnit
 
 // ─── Request ──────────────────────────────────────────────────────────────────
@@ -39,17 +43,25 @@ data class TinnitusApiResult(
 // ─── Interface ────────────────────────────────────────────────────────────────
 
 interface TinnitusApiService {
+
     @POST("analyze")
     suspend fun analyze(
-        @retrofit2.http.Header("X-API-Key") apiKey: String,
+        @Header("X-API-Key") apiKey: String,
         @Body input: AudiogramRequest
+    ): Response<TinnitusApiResult>
+
+    /** Envía una imagen JPEG/PNG del audiograma al endpoint /analyze-image */
+    @Multipart
+    @POST("analyze-image")
+    suspend fun analyzeImage(
+        @Header("X-API-Key") apiKey: String,
+        @Part file: MultipartBody.Part
     ): Response<TinnitusApiResult>
 }
 
 // ─── Singleton ────────────────────────────────────────────────────────────────
 
 object TinnitusApi {
-    // ⚠️ Reemplaza con tu IP real
     private const val BASE_URL = "https://api.tinnomore.xyz/"
     const val API_KEY = "pon-aqui-tu-clave-segura-8966ea19eefe968ede394f46"
 

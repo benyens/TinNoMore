@@ -7,20 +7,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.tinnomore.data.db.entity.UserRole
 import com.tinnomore.ui.screen.admin.AdminScreen
 import com.tinnomore.ui.screen.auth.LoginScreen
 import com.tinnomore.ui.screen.patient.CrisisScreen
 import com.tinnomore.ui.screen.patient.PatientMainScreen
 import com.tinnomore.ui.screen.specialist.SpecialistHomeScreen
+import com.tinnomore.util.NotchProcessor
 import com.tinnomore.viewmodel.AuthViewModel
 
 sealed class Screen(val route: String) {
     object Login          : Screen("login")
-    object PatientMain    : Screen("patient_main")   // v0.2: reemplaza PatientHome
+    object PatientMain    : Screen("patient_main?noiseType={noiseType}")   // v0.2: reemplaza PatientHome
     object Crisis         : Screen("crisis")
     object SpecialistHome : Screen("specialist_home")
     object Admin          : Screen("admin")
@@ -44,7 +47,7 @@ fun AppNavigation() {
     LaunchedEffect(currentUser) {
         if (currentUser != null) {
             val dest = when (currentUser!!.role) {
-                UserRole.PATIENT    -> Screen.PatientMain.route
+                UserRole.PATIENT    -> "patient_main"
                 UserRole.SPECIALIST -> Screen.SpecialistHome.route
                 UserRole.ADMIN      -> Screen.Admin.route
             }
@@ -70,7 +73,7 @@ fun AppNavigation() {
                 authViewModel  = authViewModel,
                 onLoginSuccess = { user ->
                     val dest = when (user.role) {
-                        UserRole.PATIENT    -> Screen.PatientMain.route
+                        UserRole.PATIENT    -> "patient_main"
                         UserRole.SPECIALIST -> Screen.SpecialistHome.route
                         UserRole.ADMIN      -> Screen.Admin.route
                     }
@@ -82,11 +85,27 @@ fun AppNavigation() {
         }
 
         // ── Paciente: pantalla principal con barra inferior (v0.2) ────────
-        composable(Screen.PatientMain.route) {
+        composable(
+            route = Screen.PatientMain.route,
+            arguments = listOf(
+                navArgument("noiseType") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) { backStackEntry ->
+            val noiseTypeStr = backStackEntry.arguments?.getString("noiseType")
+            val initialNoiseType = try {
+                noiseTypeStr?.let { NotchProcessor.NoiseType.valueOf(it) }
+            } catch (e: Exception) {
+                null
+            }
+
             PatientMainScreen(
-                user          = currentUser,
-                onCrisisClick = { navController.navigate(Screen.Crisis.route) },
-                onLogout      = { authViewModel.logout() }
+                user             = currentUser,
+                onCrisisClick    = { navController.navigate(Screen.Crisis.route) },
+                onLogout         = { authViewModel.logout() },
+                initialNoiseType = initialNoiseType
             )
         }
 
@@ -94,7 +113,17 @@ fun AppNavigation() {
         composable(Screen.Crisis.route) {
             CrisisScreen(
                 patientId = currentUser?.id ?: 0L,
-                onBack    = { navController.popBackStack() }
+                onBack    = { navController.popBackStack() },
+                onNavigateToTherapy = { noiseType: NotchProcessor.NoiseType? ->
+                    val route = if (noiseType != null) {
+                        "patient_main?noiseType=${noiseType.name}"
+                    } else {
+                        "patient_main"
+                    }
+                    navController.navigate(route) {
+                        popUpTo("patient_main") { inclusive = true }
+                    }
+                }
             )
         }
 
